@@ -57,7 +57,7 @@ class Telegram extends Adapter
             user = @_createUser msg.message.from, _chatId
             message = new TopicMessage user, msg.message.new_chat_title, msg.message.message_id
 
-        @receive message
+        @receive(message) if message?
         @offset = msg.update_id
 
     send: (envelope, strings...) ->
