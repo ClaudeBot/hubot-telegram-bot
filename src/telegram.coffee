@@ -32,8 +32,12 @@ class Telegram extends Adapter
         _chatId = msg.message.chat.id
         # Text message
         _text = msg.message.text
+        # Privacy mode
+        _text = _text.substr(1) if _text.charAt(0) is "/"
         if _text
+            # PM
             _text = @robot.name + " " + _text if _chatId is msg.message.from.id
+            # Create user
             user = @_createUser msg.message.from, _chatId
             message = new TextMessage user, _text, msg.message.message_id
         # Enter message
