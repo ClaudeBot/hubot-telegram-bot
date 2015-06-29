@@ -5,7 +5,7 @@ class Telegram extends Adapter
         super
         @token = process.env.TELEGRAM_BOT_TOKEN
         @refreshRate = process.env.TELEGRAM_BOT_REFRESH or 1500
-        @webhook = process.env.TELEGRAM_WEBHOOK or false
+        @webhook = process.env.TELEGRAM_BOT_WEBHOOK or false
 
         @apiURL = "https://api.telegram.org/bot"
 
