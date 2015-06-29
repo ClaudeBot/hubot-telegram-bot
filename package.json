@@ -1,0 +1,34 @@
+{
+  "name": "hubot-telegram-bot",
+  "description": "A Hubot adapter for Telegram Bots with zero external dependencies.",
+  "version": "1.0.0",
+  "author": "Ian Lai <ian@fyianlai.com>",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://ian.mit-license.org/"
+    }
+  ],
+  "keywords": [
+    "hubot",
+    "hubot-scripts",
+    "adapter",
+    "telegram",
+    "bot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ClaudeBot/hubot-telegram-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ClaudeBot/hubot-telegram-bot/issues"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "hubot": "2.x"
+  },
+  "main": "./src/telegram.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
