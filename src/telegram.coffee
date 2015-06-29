@@ -4,6 +4,7 @@ class Telegram extends Adapter
     constructor: ->
         super
         @token = process.env.TELEGRAM_BOT_TOKEN
+        @refreshRate = process.env.TELEGRAM_BOT_REFRESH or 1500
         @apiURL = "https://api.telegram.org/bot"
         @telegramBot = null
         @offset = 0
@@ -11,11 +12,12 @@ class Telegram extends Adapter
 
     _telegramRequest: (method, params = {}, handler) ->
         @robot.http("#{@apiURL}#{@token}/#{method}")
+            .header("Accept", "application/json")
             .query(params)
-            .get() (err, httpRes, body) ->
+            .get() (err, httpRes, body) =>
                 if err or httpRes.statusCode isnt 200
                     return @robot.logger.error "hubot-telegram-bot: #{body} (#{err})"
-                payload = JSON.parse(body)
+                payload = JSON.parse body
                 handler payload.result
 
     _getMe: (handler) ->
@@ -55,7 +57,8 @@ class Telegram extends Adapter
             chat_id: envelope.room
             text: strings.join "\n"
             #reply_to_message_id: envelope.message.id
-        @_telegramRequest "sendMessage", message, (res) ->
+
+        @_telegramRequest "sendMessage", message, (res) =>
             @robot.logger.debug "hubot-telegram-bot: Sent -> #{res}"
 
     reply: (envelope, strings...) ->
@@ -64,7 +67,7 @@ class Telegram extends Adapter
 
     run: ->
         unless @token
-            @emit "error", new Error "Missing TELEGRAM_BOT_TOKEN in environment."
+            @emit "error", new Error "You must configure the TELEGRAM_BOT_TOKEN environment variable."
 
         @_getMe (res) =>
             @telegramBot = res
@@ -73,7 +76,7 @@ class Telegram extends Adapter
         setInterval =>
             @_telegramRequest "getUpdates", offset: @offset + 1, (res) =>
                 @_processMsg obj for obj in res
-        , 2000
+        , @refreshRate
 
         @robot.logger.info "hubot-telegram-bot: Adapter running."
         @emit "connected"
