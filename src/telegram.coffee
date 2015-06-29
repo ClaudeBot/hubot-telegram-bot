@@ -5,9 +5,13 @@ class Telegram extends Adapter
         super
         @token = process.env.TELEGRAM_BOT_TOKEN
         @refreshRate = process.env.TELEGRAM_BOT_REFRESH or 1500
+        @webhook = process.env.TELEGRAM_WEBHOOK or false
+
         @apiURL = "https://api.telegram.org/bot"
+
         @telegramBot = null
         @offset = 0
+
         @robot.logger.info "hubot-telegram-bot: Adapter loaded."
 
     _telegramRequest: (method, params = {}, handler) ->
@@ -60,14 +64,18 @@ class Telegram extends Adapter
         message =
             chat_id: envelope.room
             text: strings.join "\n"
-            #reply_to_message_id: envelope.message.id
 
         @_telegramRequest "sendMessage", message, (res) =>
-            @robot.logger.debug "hubot-telegram-bot: Sent -> #{res}"
+            @robot.logger.debug "hubot-telegram-bot: Send -> #{res}"
 
     reply: (envelope, strings...) ->
-        for str in strings
-            @send envelope.user, "#{envelope.user.name}: #{str}"
+        message =
+            chat_id: envelope.room
+            text: strings.join "\n"
+            reply_to_message_id: envelope.message.id
+
+        @_telegramRequest "sendMessage", message, (res) =>
+            @robot.logger.debug "hubot-telegram-bot: Reply -> #{res}"
 
     run: ->
         unless @token
@@ -77,10 +85,18 @@ class Telegram extends Adapter
             @telegramBot = res
             @robot.logger.info "hubot-telegram-bot: Hello, I'm #{res.first_name}!"
 
-        setInterval =>
-            @_telegramRequest "getUpdates", offset: @offset + 1, (res) =>
-                @_processMsg obj for obj in res
-        , @refreshRate
+        if @webhook
+            @_telegramRequest "setWebhook", url: @webhook, (res) =>
+                @robot.logger.info "hubot-telegram-bot: Using webhook method (`#{@webhook}`) for receiving updates."
+
+            @robot.router.post "/telegram", (httpReq, httpRes) =>
+                payload = httpReq.body.result
+                @_processMsg obj for obj in payload
+        else
+            setInterval =>
+                @_telegramRequest "getUpdates", offset: @offset + 1, (res) =>
+                    @_processMsg obj for obj in res
+            , @refreshRate
 
         @robot.logger.info "hubot-telegram-bot: Adapter running."
         @emit "connected"
