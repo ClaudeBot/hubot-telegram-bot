@@ -101,6 +101,9 @@ class Telegram extends Adapter
                 payload = httpReq.body.result
                 @_processMsg obj for obj in payload
         else
+            @_telegramRequest "setWebhook", url: "", (res) =>
+                @robot.logger.info "hubot-telegram-bot: Using long polling method. Disabling webhook."
+
             setInterval =>
                 @_telegramRequest "getUpdates", offset: @offset + 1, (res) =>
                     @_processMsg obj for obj in res
