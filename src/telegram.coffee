@@ -36,14 +36,22 @@ class Telegram extends Adapter
         _chatId = msg.message.chat.id
         # Text message
         _text = msg.message.text
-        # Privacy mode
-        _text = _text.substr(1) if _text.charAt(0) is "/"
+
         if _text
+            # Group privacy mode
+            if _text.charAt(0) is "/"
+                _text = _text.substr(1)
+
+                if msg.message.chat.type is "group"
+                    _text = @robot.name + " " + _text
+
             # PM
-            _text = @robot.name + " " + _text if _chatId is msg.message.from.id
+            if _chatId is msg.message.from.id
+                _text = @robot.name + " " + _text
+
             # Create user
             user = @_createUser msg.message.from, _chatId
-            message = new TextMessage user, _text, msg.message.message_id
+            message = new TextMessage user, _text.trim(), msg.message.message_id
         # Enter message
         else if msg.message.new_chat_participant
             user = @_createUser msg.message.new_chat_participant, _chatId
