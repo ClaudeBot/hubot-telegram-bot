@@ -1,7 +1,7 @@
 {
   "name": "hubot-telegram-bot",
   "description": "A Hubot adapter for Telegram Bots with zero external dependencies.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "Ian Lai <ian@fyianlai.com>",
   "licenses": [
     {
